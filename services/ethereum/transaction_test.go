@@ -15,6 +15,7 @@ import (
 
 var (
 	validAddress = "0x388c818ca8b9251b393131c08a736a67ccb19297"
+	urlAddress   = "https://api.example.com/eth"
 )
 
 func TestSubscribe_HappyPath(t *testing.T) {
@@ -23,6 +24,7 @@ func TestSubscribe_HappyPath(t *testing.T) {
 	storageMock.On("Put", mock.Anything, mock.Anything).Return(nil)
 
 	service := &RPCService{
+		url:           urlAddress,
 		storageClient: storageMock,
 	}
 
@@ -55,6 +57,7 @@ func TestSubscribe_ErrorStoreAddress(t *testing.T) {
 	storageMock.On("Put", mock.Anything, mock.Anything).Return(errors.New(""))
 
 	service := &RPCService{
+		url:           urlAddress,
 		storageClient: storageMock,
 	}
 
@@ -79,12 +82,13 @@ func TestGetTransactions_HappyPath(t *testing.T) {
 
 	storageMock.On("Get", validAddress).Return(validAddress, nil)
 
-	httpClientMock.On("Post", mock.Anything, mock.Anything).Return(&http.Response{
+	httpClientMock.On("Post", urlAddress, mock.Anything).Return(&http.Response{
 		StatusCode: 200,
 		Body:       io.NopCloser(bytes.NewReader([]byte(`{"result": [{"transactionHash": "0xff792001","transactionIndex": "0x123"}]}`))),
 	}, nil)
 
 	service := &RPCService{
+		url:           urlAddress,
 		httpClient:    httpClientMock,
 		storageClient: storageMock,
 	}
@@ -124,9 +128,10 @@ func TestGetTransactions_ErrorPost(t *testing.T) {
 
 	storageMock.On("Get", validAddress).Return(validAddress, nil)
 
-	httpClientMock.On("Post", mock.Anything, mock.Anything).Return(nil, errors.New(""))
+	httpClientMock.On("Post", urlAddress, mock.Anything).Return(nil, errors.New(""))
 
 	service := &RPCService{
+		url:           urlAddress,
 		httpClient:    httpClientMock,
 		storageClient: storageMock,
 	}
@@ -151,12 +156,13 @@ func TestGetTransactions_ErrorReadBody(t *testing.T) {
 
 	storageMock.On("Get", validAddress).Return(validAddress, nil)
 
-	httpClientMock.On("Post", mock.Anything, mock.Anything).Return(&http.Response{
+	httpClientMock.On("Post", urlAddress, mock.Anything).Return(&http.Response{
 		StatusCode: 504,
 		Body:       errorReaderMock{},
 	}, nil)
 
 	service := &RPCService{
+		url:           urlAddress,
 		httpClient:    httpClientMock,
 		storageClient: storageMock,
 	}
@@ -181,12 +187,13 @@ func TestGetTransactions_ErrorParseResponse(t *testing.T) {
 
 	storageMock.On("Get", validAddress).Return(validAddress, nil)
 
-	httpClientMock.On("Post", mock.Anything, mock.Anything).Return(&http.Response{
+	httpClientMock.On("Post", urlAddress, mock.Anything).Return(&http.Response{
 		StatusCode: 200,
 		Body:       io.NopCloser(bytes.NewReader([]byte("invalid-json"))),
 	}, nil)
 
 	service := &RPCService{
+		url:           urlAddress,
 		httpClient:    httpClientMock,
 		storageClient: storageMock,
 	}

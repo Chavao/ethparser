@@ -27,12 +27,13 @@ func (errorReaderMock) Close() error {
 func TestGetCurrentBlock_HappyPath(t *testing.T) {
 	httpClientMock := &mockPostRequester{}
 
-	httpClientMock.On("Post", mock.Anything, mock.Anything).Return(&http.Response{
+	httpClientMock.On("Post", urlAddress, mock.Anything).Return(&http.Response{
 		StatusCode: 200,
 		Body:       io.NopCloser(bytes.NewReader([]byte(`{"result": "0x134c63d"}`))),
 	}, nil)
 
 	service := &RPCService{
+		url:        urlAddress,
 		httpClient: httpClientMock,
 	}
 
@@ -44,9 +45,10 @@ func TestGetCurrentBlock_HappyPath(t *testing.T) {
 func TestGetCurrentBlock_ErrorPost(t *testing.T) {
 	httpClientMock := &mockPostRequester{}
 
-	httpClientMock.On("Post", mock.Anything, mock.Anything).Return(nil, errors.New(""))
+	httpClientMock.On("Post", urlAddress, mock.Anything).Return(nil, errors.New(""))
 
 	service := &RPCService{
+		url:        urlAddress,
 		httpClient: httpClientMock,
 	}
 
@@ -67,12 +69,13 @@ func TestGetCurrentBlock_ErrorPost(t *testing.T) {
 func TestGetCurrentBlock_ErrorReadBody(t *testing.T) {
 	httpClientMock := &mockPostRequester{}
 
-	httpClientMock.On("Post", mock.Anything, mock.Anything).Return(&http.Response{
+	httpClientMock.On("Post", urlAddress, mock.Anything).Return(&http.Response{
 		StatusCode: 504,
 		Body:       errorReaderMock{},
 	}, nil)
 
 	service := &RPCService{
+		url:        urlAddress,
 		httpClient: httpClientMock,
 	}
 
@@ -93,12 +96,13 @@ func TestGetCurrentBlock_ErrorReadBody(t *testing.T) {
 func TestGetCurrentBlock_ErrorParseResponse(t *testing.T) {
 	httpClientMock := &mockPostRequester{}
 
-	httpClientMock.On("Post", mock.Anything, mock.Anything).Return(&http.Response{
+	httpClientMock.On("Post", urlAddress, mock.Anything).Return(&http.Response{
 		StatusCode: 200,
 		Body:       io.NopCloser(bytes.NewReader([]byte("invalid-json"))),
 	}, nil)
 
 	service := &RPCService{
+		url:        urlAddress,
 		httpClient: httpClientMock,
 	}
 
