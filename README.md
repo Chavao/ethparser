@@ -1,5 +1,5 @@
 ### How to test
 
 ```
-go test -v ./services/ethereum
+go test -v -cover ./...
 ```

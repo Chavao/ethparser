@@ -119,3 +119,24 @@ func TestGetCurrentBlock_ErrorParseResponse(t *testing.T) {
 	assert.Contains(t, output, expectedMessage)
 	assert.Equal(t, 0, block)
 }
+
+func TestResultToInt(t *testing.T) {
+	result := resultToInt("0x134c63d")
+
+	assert.Equal(t, 20235837, result)
+}
+
+func TestResultToInt_ErrorToConvertFromHex(t *testing.T) {
+	reader, writer, originalStdout := tests.CaptureOutput(t)
+	defer func() {
+		os.Stdout = originalStdout
+	}()
+
+	result := resultToInt("potato")
+
+	output := tests.ReadOutput(reader, writer)
+
+	expectedMessage := "Error to convert from hex"
+	assert.Contains(t, output, expectedMessage)
+	assert.Equal(t, 0, result)
+}
